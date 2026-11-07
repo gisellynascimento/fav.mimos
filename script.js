@@ -100,16 +100,13 @@ function atualizarCarrinho() {
     localStorage.setItem('carrinho_fav_mimos', JSON.stringify(carrinho));
     const lista = document.getElementById('lista-carrinho');
     const badgeInferior = document.getElementById('badge-carrinho-inferior');
-    const valorTotal = document.getElementById('valor-total');
     
     if (!lista) return;
 
     lista.innerHTML = '';
-    let total = 0;
     let qtdTotal = 0;
 
     carrinho.forEach(item => {
-        total += item.preco * item.quantidade;
         qtdTotal += item.quantidade;
 
         lista.innerHTML += `
@@ -141,8 +138,29 @@ function atualizarCarrinho() {
         }
     }
 
-    if (valorTotal) {
-        valorTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    atualizarTotalComTaxa();
+}
+
+// Atualiza o total exibido considerando produtos + taxa de entrega opcional
+function atualizarTotalComTaxa() {
+    const tipoEntrega = document.getElementById('tipo-entrega')?.value;
+    const boxTaxa = document.getElementById('box-taxa-entrega');
+    const valorTaxaInput = parseFloat(document.getElementById('valor-taxa-entrega')?.value) || 0;
+    
+    let taxa = 0;
+    if (tipoEntrega === 'entrega') {
+        boxTaxa?.classList.remove('hidden');
+        taxa = valorTaxaInput;
+    } else {
+        boxTaxa?.classList.add('hidden');
+    }
+
+    let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+    let totalComTaxa = subtotal + taxa;
+
+    const valorTotalEl = document.getElementById('valor-total');
+    if (valorTotalEl) {
+        valorTotalEl.innerText = `R$ ${totalComTaxa.toFixed(2).replace('.', ',')}`;
     }
 }
 
@@ -165,19 +183,36 @@ function finalizarPedido() {
         return;
     }
 
-    let totalVenda = 0, msgItens = "";
+    const tipoEntrega = document.getElementById('tipo-entrega').value;
+    const taxaEntrega = tipoEntrega === 'entrega' ? (parseFloat(document.getElementById('valor-taxa-entrega').value) || 0) : 0;
+    const formaPagamento = document.getElementById('forma-pagamento').value;
+
+    let subtotal = 0, msgItens = "";
     carrinho.forEach(item => {
-        totalVenda += item.preco * item.quantidade;
-        msgItens += `- ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2)})\n`;
+        subtotal += item.preco * item.quantidade;
+        msgItens += `- ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2).replace('.', ',')})\n`;
     });
+
+    const totalFinal = subtotal + taxaEntrega;
 
     historicoVendas.push({
         data: new Date().toISOString(),
-        total: totalVenda
+        total: totalFinal
     });
     localStorage.setItem('historico_vendas_mimos', JSON.stringify(historicoVendas));
 
-    const mensagem = encodeURIComponent(`Olá! Gostaria de fazer o pedido dos seguintes mimos da *Fav.mimos*:\n\n${msgItens}\n*Total: R$ ${totalVeneda.toFixed(2).replace('.', ',')}*`);
+    let detalheEntrega = tipoEntrega === 'entrega' 
+        ? `🚚 *Entrega* (Taxa: R$ ${taxaEntrega.toFixed(2).replace('.', ',')})` 
+        : `🛍️ *Retirada no Local*`;
+
+    const mensagemText = `Olá! Gostaria de fazer o seguinte pedido na *Fav.mimos*:\n\n` +
+        `${msgItens}\n` +
+        `-------------------------------\n` +
+        `📦 *Tipo:* ${detalheEntrega}\n` +
+        `💳 *Forma de Pagamento:* ${formaPagamento}\n` +
+        `💰 *Total Final: R$ ${totalFinal.toFixed(2).replace('.', ',')}*`;
+
+    const mensagem = encodeURIComponent(mensagemText);
     
     carrinho = [];
     atualizarCarrinho();
