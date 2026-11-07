@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fav.mimos</title>
+    <!-- Link para o CSS externo -->
     <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Script principal da aplicação carregado com defer -->
     <script src="script.js" defer></script>
 </head>
 <body class="bg-pink-50 text-slate-800 font-sans pb-24">
@@ -17,7 +20,9 @@
             <h1 class="text-xl font-bold text-pink-600 flex items-center gap-2">
                 <i class="fa-solid fa-gem"></i> Fav.mimos
             </h1>
-            <div>
+
+            <div class="flex items-center gap-2">
+                <!-- Botão Painel Rosa no Topo -->
                 <button onclick="abrirPainelAdm()" class="bg-pink-600 hover:bg-pink-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                     <i class="fa-solid fa-lock"></i> Painel
                 </button>
@@ -41,12 +46,15 @@
             <button onclick="filtrarProdutos('intimo', this)" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Íntimo & Facial</button>
         </div>
 
+        <!-- Texto "Todos os Produtos" -->
         <div class="py-1">
             <h2 id="titulo-secao" class="text-base font-bold text-slate-800">Todos os Produtos</h2>
         </div>
 
-        <!-- Vitrine -->
-        <div id="vitrine-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+        <!-- Vitrine de Produtos -->
+        <div id="vitrine-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <!-- Injetado via JS -->
+        </div>
 
     </main>
 
@@ -69,14 +77,16 @@
         </div>
     </div>
 
-    <!-- Modal Carrinho -->
+    <!-- Modal do Carrinho -->
     <div id="modal-carrinho" class="fixed inset-0 bg-black/50 hidden justify-end z-50">
         <div class="bg-white w-full max-w-md h-full p-6 flex flex-col shadow-xl">
             <div class="flex justify-between items-center border-b pb-4">
                 <h2 class="text-lg font-bold text-slate-800">Seu Carrinho - Fav.mimos</h2>
                 <button onclick="toggleCarrinho()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
             </div>
+            
             <div id="lista-carrinho" class="flex-1 overflow-y-auto py-4 space-y-4"></div>
+
             <div class="border-t pt-4">
                 <div class="flex justify-between mb-4 font-bold text-lg">
                     <span>Total:</span>
@@ -89,7 +99,7 @@
         </div>
     </div>
 
-    <!-- Modal Painel Administrativo -->
+    <!-- Modal Painel Administrativo com Senha e Abas -->
     <div id="modal-adm" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-3 backdrop-blur-sm">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-4 text-slate-100 shadow-2xl flex flex-col max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -110,13 +120,15 @@
                 <p id="erro-senha" class="text-red-400 text-xs hidden font-bold">Senha incorreta!</p>
             </div>
 
-            <!-- Conteúdo do Painel -->
+            <!-- Conteúdo do Painel com Abas -->
             <div id="bloco-conteudo-adm" class="hidden flex-1 overflow-y-auto space-y-4 pt-3">
+                
                 <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
                     <button onclick="mudarAbaAdm('relatorios')" id="tab-btn-relatorios" class="flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white transition">Relatórios</button>
                     <button onclick="mudarAbaAdm('produtos')" id="tab-btn-produtos" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Gerenciar Produtos</button>
                 </div>
 
+                <!-- Aba Relatórios -->
                 <div id="aba-relatorios" class="space-y-4">
                     <div class="grid grid-cols-3 gap-2 text-center">
                         <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
@@ -132,15 +144,48 @@
                             <h3 id="relatorio-mes" class="text-sm font-black text-emerald-400 mt-0.5">R$ 0,00</h3>
                         </div>
                     </div>
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                        <span class="text-xs font-bold text-slate-300 block">Lançar Venda no Caixa:</span>
+                        <div class="flex gap-2">
+                            <input type="number" id="venda-manual-valor" placeholder="Valor R$" class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-white w-full text-sm">
+                            <button onclick="registrarVendaBalcao()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">Lançar</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-300 text-xs">Histórico de Vendas</h4>
+                            <button onclick="limparHistorico()" class="text-[11px] text-red-400 font-semibold hover:underline">Limpar</button>
+                        </div>
+                        <div id="lista-historico-vendas" class="space-y-1.5 max-h-36 overflow-y-auto bg-slate-950 p-2 rounded-xl border border-slate-800"></div>
+                    </div>
                 </div>
 
+                <!-- Aba Produtos (CRUD) -->
                 <div id="aba-produtos" class="hidden space-y-4">
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-3">
-                        <h4 class="text-xs font-bold text-white uppercase">Adicionar Produto</h4>
-                        <input type="text" id="prod-nome" placeholder="Nome" class="w-full bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
-                        <input type="text" id="prod-categoria" placeholder="Categoria" class="w-full bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
-                        <input type="number" id="prod-preco" placeholder="Preço" class="w-full bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
-                        <button onclick="salvarProduto()" class="w-full bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-xl text-xs font-bold">Salvar</button>
+                        <h4 id="titulo-form-produto" class="text-xs font-bold text-white uppercase tracking-wider">Adicionar Novo Produto</h4>
+                        <input type="hidden" id="prod-edit-id">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="prod-nome" placeholder="Nome do Produto" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="text" id="prod-categoria" placeholder="Categoria (ex: maquiagem)" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" id="prod-preco" placeholder="Preço (R$)" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="text" id="prod-imagem" placeholder="URL da Imagem" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="salvarProduto()" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-xl text-xs font-bold">Salvar Produto</button>
+                            <button onclick="limparFormProduto()" id="btn-cancelar-edicao" class="hidden bg-slate-800 text-slate-300 px-3 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-300 text-xs">Produtos Cadastrados</h4>
+                        </div>
+                        <div id="lista-crud-produtos" class="space-y-1.5 max-h-48 overflow-y-auto bg-slate-950 p-2 rounded-xl border border-slate-800"></div>
                     </div>
                 </div>
             </div>
