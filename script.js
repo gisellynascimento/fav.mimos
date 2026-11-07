@@ -1,3 +1,4 @@
+// Catálogo atualizado com os produtos originais solicitados
 const produtos = [
     { id: 1, nome: "Colônia Infantil Cheirinho de Amor", categoria: "infantil", preco: 35.90, imagem: "https://images.unsplash.com/photo-1515688594390-b649af70d282?w=400&auto=format&fit=crop&q=60" },
     { id: 2, nome: "Kit Maquiagem Completo Glow", categoria: "maquiagem", preco: 89.90, imagem: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&auto=format&fit=crop&q=60" },
@@ -16,6 +17,7 @@ let carrinho = [];
 
 function renderizarProdutos(filtro = 'todos') {
     const vitrine = document.getElementById('vitrine-produtos');
+    if (!vitrine) return;
     vitrine.innerHTML = '';
 
     const produtosFiltrados = filtro === 'todos' 
@@ -45,13 +47,16 @@ function renderizarProdutos(filtro = 'todos') {
     });
 }
 
-function filtrarProdutos(categoria) {
+function filtrarProdutos(categoria, elemento) {
     document.querySelectorAll('.filtro-btn').forEach(btn => {
         btn.classList.remove('bg-pink-600', 'text-white');
         btn.classList.add('bg-white', 'text-slate-600');
     });
-    event.target.classList.remove('bg-white', 'text-slate-600');
-    event.target.classList.add('bg-pink-600', 'text-white');
+    
+    if (elemento) {
+        elemento.classList.remove('bg-white', 'text-slate-600');
+        elemento.classList.add('bg-pink-600', 'text-white');
+    }
     
     renderizarProdutos(categoria);
 }
@@ -73,6 +78,8 @@ function atualizarCarrinho() {
     const badgeInferior = document.getElementById('badge-carrinho-inferior');
     const valorTotal = document.getElementById('valor-total');
     
+    if (!lista) return;
+
     lista.innerHTML = '';
     let total = 0;
     let qtdTotal = 0;
@@ -94,14 +101,18 @@ function atualizarCarrinho() {
         `;
     });
 
-    if (qtdTotal > 0) {
-        badgeInferior.innerText = qtdTotal;
-        badgeInferior.classList.remove('hidden');
-    } else {
-        badgeInferior.classList.add('hidden');
+    if (badgeInferior) {
+        if (qtdTotal > 0) {
+            badgeInferior.innerText = qtdTotal;
+            badgeInferior.classList.remove('hidden');
+        } else {
+            badgeInferior.classList.add('hidden');
+        }
     }
 
-    valorTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    if (valorTotal) {
+        valorTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
 }
 
 function removerDoCarrinho(id) {
@@ -111,8 +122,10 @@ function removerDoCarrinho(id) {
 
 function toggleCarrinho() {
     const modal = document.getElementById('modal-carrinho');
-    modal.classList.toggle('hidden');
-    modal.classList.toggle('flex');
+    if (modal) {
+        modal.classList.toggle('hidden');
+        modal.classList.toggle('flex');
+    }
 }
 
 function abrirPainelAdm() {
@@ -139,4 +152,5 @@ function finalizarPedido() {
     window.open(`https://wa.me/${seuNumeroWhatsApp}?text=${mensagem}`, '_blank');
 }
 
+// Inicializa a vitrine assim que o script carrega
 renderizarProdutos();
