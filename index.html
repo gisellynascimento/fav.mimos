@@ -12,7 +12,7 @@
     <!-- Script principal da aplicação carregado com defer -->
     <script src="script.js" defer></script>
 </head>
-<body class="bg-pink-50 text-slate-800 font-sans pb-24">
+<body id="corpo-pagina" class="bg-pink-50 text-slate-800 font-sans pb-24">
 
     <!-- Cabeçalho -->
     <header class="bg-white shadow-sm sticky top-0 z-40">
@@ -77,7 +77,7 @@
         </div>
     </div>
 
-    <!-- Modal do Carrinho Atualizado com Retirada/Entrega e Pagamento -->
+    <!-- Modal do Carrinho (Com Retirada/Entrega e Pagamento - Sem Taxa Visível ao Cliente) -->
     <div id="modal-carrinho" class="fixed inset-0 bg-black/50 hidden justify-end z-50">
         <div class="bg-white w-full max-w-md h-full p-6 flex flex-col shadow-xl">
             <div class="flex justify-between items-center border-b pb-4">
@@ -87,19 +87,13 @@
             
             <div id="lista-carrinho" class="flex-1 overflow-y-auto py-4 space-y-4"></div>
 
-            <!-- Opções de Entrega e Pagamento -->
             <div class="border-t pt-4 space-y-3">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tipo de Pedido:</label>
-                    <select id="tipo-entrega" onchange="atualizarTotalComTaxa()" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-pink-500">
-                        <option value="retirada">Retirada (Sem Taxa)</option>
-                        <option value="entrega">Entrega (+ Taxa)</option>
+                    <select id="tipo-entrega" onchange="atualizarCarrinho()" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-pink-500">
+                        <option value="retirada">Retirada no Local</option>
+                        <option value="entrega">Entrega a Domicílio</option>
                     </select>
-                </div>
-
-                <div id="box-taxa-entrega" class="hidden">
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Taxa de Entrega (R$):</label>
-                    <input type="number" id="valor-taxa-entrega" placeholder="0.00" value="5.00" oninput="atualizarTotalComTaxa()" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-pink-500">
                 </div>
 
                 <div>
@@ -123,7 +117,7 @@
         </div>
     </div>
 
-    <!-- Modal Painel Administrativo com Suporte à Tecla Enter -->
+    <!-- Modal Painel Administrativo com Senha e Abas -->
     <div id="modal-adm" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-3 backdrop-blur-sm">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-4 text-slate-100 shadow-2xl flex flex-col max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -169,12 +163,21 @@
                         </div>
                     </div>
 
+                    <!-- Configurar Taxa de Entrega Exclusiva da Dona -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                        <span class="text-xs font-bold text-pink-400 block"><i class="fa-solid fa-motorcycle"></i> Taxa de Entrega Padrão (Só você vê):</span>
+                        <div class="flex gap-2">
+                            <input type="number" id="taxa-entrega-adm" placeholder="0.00" value="5.00" oninput="atualizarCarrinho()" class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-white w-full text-sm">
+                        </div>
+                    </div>
+
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
                         <span class="text-xs font-bold text-slate-300 block">Lançar Venda no Caixa:</span>
                         <div class="flex gap-2">
                             <input type="number" id="venda-manual-valor" placeholder="Valor R$" onkeyup="if(event.key === 'Enter') registrarVendaBalcao()" class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-white w-full text-sm">
                             <button onclick="registrarVendaBalcao()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">Lançar</button>
                         </div>
+                        <span id="aviso-venda-ok" class="text-emerald-400 text-[11px] font-bold hidden">Venda lançada com sucesso!</span>
                     </div>
 
                     <div>
@@ -203,6 +206,7 @@
                             <button onclick="salvarProduto()" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-xl text-xs font-bold">Salvar Produto</button>
                             <button onclick="limparFormProduto()" id="btn-cancelar-edicao" class="hidden bg-slate-800 text-slate-300 px-3 py-2 rounded-xl text-xs font-bold">Cancelar</button>
                         </div>
+                        <span id="aviso-produto-ok" class="text-pink-400 text-[11px] font-bold hidden block text-center">Produto salvo com sucesso!</span>
                     </div>
 
                     <div>
