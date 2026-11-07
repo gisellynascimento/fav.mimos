@@ -77,7 +77,7 @@
         </div>
     </div>
 
-    <!-- Modal do Carrinho -->
+    <!-- Modal do Carrinho Atualizado com Retirada/Entrega e Pagamento -->
     <div id="modal-carrinho" class="fixed inset-0 bg-black/50 hidden justify-end z-50">
         <div class="bg-white w-full max-w-md h-full p-6 flex flex-col shadow-xl">
             <div class="flex justify-between items-center border-b pb-4">
@@ -87,11 +87,35 @@
             
             <div id="lista-carrinho" class="flex-1 overflow-y-auto py-4 space-y-4"></div>
 
-            <div class="border-t pt-4">
-                <div class="flex justify-between mb-4 font-bold text-lg">
+            <!-- Opções de Entrega e Pagamento -->
+            <div class="border-t pt-4 space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tipo de Pedido:</label>
+                    <select id="tipo-entrega" onchange="atualizarTotalComTaxa()" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-pink-500">
+                        <option value="retirada">Retirada (Sem Taxa)</option>
+                        <option value="entrega">Entrega (+ Taxa)</option>
+                    </select>
+                </div>
+
+                <div id="box-taxa-entrega" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Taxa de Entrega (R$):</label>
+                    <input type="number" id="valor-taxa-entrega" placeholder="0.00" value="5.00" oninput="atualizarTotalComTaxa()" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-pink-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Forma de Pagamento:</label>
+                    <select id="forma-pagamento" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-pink-500">
+                        <option value="Pix">Pix</option>
+                        <option value="Cartão de Crédito/Débito">Cartão de Crédito/Débito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-between items-center pt-2 font-bold text-lg">
                     <span>Total:</span>
                     <span id="valor-total" class="text-pink-600">R$ 0,00</span>
                 </div>
+
                 <button onclick="finalizarPedido()" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
                     <i class="fa-brands fa-whatsapp text-xl"></i> Finalizar Pedido via WhatsApp
                 </button>
@@ -99,7 +123,7 @@
         </div>
     </div>
 
-    <!-- Modal Painel Administrativo com Senha e Abas -->
+    <!-- Modal Painel Administrativo com Suporte à Tecla Enter -->
     <div id="modal-adm" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-3 backdrop-blur-sm">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-4 text-slate-100 shadow-2xl flex flex-col max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -114,7 +138,7 @@
                 <i class="fa-solid fa-user-lock text-3xl text-pink-500/80"></i>
                 <p class="text-slate-300 text-xs">Digite a senha para gerenciar o sistema:</p>
                 <div class="flex flex-col gap-2 max-w-xs mx-auto">
-                    <input type="password" id="input-senha" inputmode="numeric" placeholder="Senha" class="bg-slate-950 border border-slate-800 px-4 py-3 rounded-xl text-center text-white text-lg focus:outline-none focus:border-pink-600">
+                    <input type="password" id="input-senha" inputmode="numeric" placeholder="Senha" onkeyup="if(event.key === 'Enter') verificarSenha()" class="bg-slate-950 border border-slate-800 px-4 py-3 rounded-xl text-center text-white text-lg focus:outline-none focus:border-pink-600">
                     <button onclick="verificarSenha()" class="bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl font-bold text-sm">Acessar Painel</button>
                 </div>
                 <p id="erro-senha" class="text-red-400 text-xs hidden font-bold">Senha incorreta!</p>
@@ -148,7 +172,7 @@
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
                         <span class="text-xs font-bold text-slate-300 block">Lançar Venda no Caixa:</span>
                         <div class="flex gap-2">
-                            <input type="number" id="venda-manual-valor" placeholder="Valor R$" class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-white w-full text-sm">
+                            <input type="number" id="venda-manual-valor" placeholder="Valor R$" onkeyup="if(event.key === 'Enter') registrarVendaBalcao()" class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-white w-full text-sm">
                             <button onclick="registrarVendaBalcao()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">Lançar</button>
                         </div>
                     </div>
@@ -168,12 +192,12 @@
                         <h4 id="titulo-form-produto" class="text-xs font-bold text-white uppercase tracking-wider">Adicionar Novo Produto</h4>
                         <input type="hidden" id="prod-edit-id">
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="prod-nome" placeholder="Nome do Produto" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
-                            <input type="text" id="prod-categoria" placeholder="Categoria (ex: maquiagem)" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="text" id="prod-nome" placeholder="Nome do Produto" onkeyup="if(event.key === 'Enter') salvarProduto()" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="text" id="prod-categoria" placeholder="Categoria" onkeyup="if(event.key === 'Enter') salvarProduto()" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="number" id="prod-preco" placeholder="Preço (R$)" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
-                            <input type="text" id="prod-imagem" placeholder="URL da Imagem" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="number" id="prod-preco" placeholder="Preço (R$)" onkeyup="if(event.key === 'Enter') salvarProduto()" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="text" id="prod-imagem" placeholder="URL da Imagem" onkeyup="if(event.key === 'Enter') salvarProduto()" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
                         </div>
                         <div class="flex gap-2 pt-1">
                             <button onclick="salvarProduto()" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-xl text-xs font-bold">Salvar Produto</button>
