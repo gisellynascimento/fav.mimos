@@ -1,0 +1,13 @@
+/* Ajustes finos de estilo e scrollbar */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Ocultar barra de rolagem horizontal dos filtros mantendo a funcionalidade */
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

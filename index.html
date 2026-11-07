@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fav.mimos - Catálogo</title>
+    <!-- Link para o CSS externo -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-pink-50 text-slate-800 font-sans">
+
+    <!-- Cabeçalho -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-pink-600 flex items-center gap-2">
+                <i class="fa-solid fa-gem"></i> Fav.mimos
+            </h1>
+            <button onclick="toggleCarrinho()" class="bg-pink-600 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow hover:bg-pink-700 transition">
+                <i class="fa-solid fa-shopping-bag"></i> Carrinho <span id="contador-carrinho" class="bg-white text-pink-600 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- Filtros de Categorias Atualizados -->
+        <div class="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
+            <button onclick="filtrarProdutos('todos')" class="filtro-btn active bg-pink-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-sm transition whitespace-nowrap">Todos</button>
+            <button onclick="filtrarProdutos('infantil')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Infantil</button>
+            <button onclick="filtrarProdutos('maquiagem')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Maquiagem</button>
+            <button onclick="filtrarProdutos('higiene')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Higiene</button>
+            <button onclick="filtrarProdutos('hidratante')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Hidratante</button>
+            <button onclick="filtrarProdutos('bodysplash')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Body Splash</button>
+            <button onclick="filtrarProdutos('relogio')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Relógio</button>
+            <button onclick="filtrarProdutos('cabelo')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Cuidados Capilares</button>
+            <button onclick="filtrarProdutos('intimo')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Íntimo & Facial</button>
+        </div>
+
+        <!-- Vitrine de Produtos -->
+        <div id="vitrine-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <!-- Injetado via JS -->
+        </div>
+
+    </main>
+
+    <!-- Modal do Carrinho -->
+    <div id="modal-carrinho" class="fixed inset-0 bg-black/50 hidden justify-end z-50">
+        <div class="bg-white w-full max-w-md h-full p-6 flex flex-col shadow-xl">
+            <div class="flex justify-between items-center border-b pb-4">
+                <h2 class="text-lg font-bold text-slate-800">Seu Carrinho - Fav.mimos</h2>
+                <button onclick="toggleCarrinho()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+            </div>
+            
+            <div id="lista-carrinho" class="flex-1 overflow-y-auto py-4 space-y-4"></div>
+
+            <div class="border-t pt-4">
+                <div class="flex justify-between mb-4 font-bold text-lg">
+                    <span>Total:</span>
+                    <span id="valor-total" class="text-pink-600">R$ 0,00</span>
+                </div>
+                <button onclick="finalizarPedido()" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Finalizar Pedido via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link para o JavaScript externo -->
+    <script src="script.js"></script>
+</body>
+</html>
