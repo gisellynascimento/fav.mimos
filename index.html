@@ -2,160 +2,58 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fav.mimos</title>
+    <!-- Link para o CSS externo -->
+    <link rel="stylesheet" href="style.css">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-pink-950 text-pink-100 font-sans pb-24 md:pb-8 select-none">
+<body class="bg-pink-50 text-slate-800 font-sans pb-20">
 
-    <!-- Cabeçalho Principal -->
-    <header class="bg-pink-900/90 border-b border-pink-800 sticky top-0 z-40 backdrop-blur-md shadow-md">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-2.5">
-                    <div class="bg-gradient-to-br from-pink-600 to-pink-700 text-white w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shadow-pink-950/40">
-                        <i class="fa-solid fa-gem text-lg"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-base font-extrabold text-white leading-none">FAV.MIMOS</h1>
-                        <span class="text-[10px] text-pink-300 block mt-0.5 font-medium">Cosméticos & Acessórios</span>
-                    </div>
-                </div>
-
-                <!-- Botão do Painel no Mobile -->
-                <div class="flex md:hidden items-center gap-2">
-                    <button onclick="abrirPainelAdm()" class="bg-pink-900 active:bg-pink-800 text-pink-200 px-3 py-2 rounded-xl text-xs font-bold border border-pink-700 flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-lock text-pink-400"></i> Painel
-                    </button>
-                </div>
-            </div>
-
-            <!-- Campo de Busca e Ações para Telas Maiores -->
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="relative flex-1 md:w-80">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-pink-400 text-sm"></i>
-                    <input type="text" id="campo-busca" oninput="filtrarGeral()" placeholder="Buscar produto..." class="w-full bg-pink-950 text-white placeholder-pink-400 pl-10 pr-4 py-2.5 rounded-xl text-sm border border-pink-800 focus:outline-none focus:border-pink-600">
-                </div>
-
-                <!-- Botões para Desktop -->
-                <div class="hidden md:flex items-center gap-2">
-                    <button onclick="abrirPainelAdm()" class="bg-pink-900 hover:bg-pink-800 text-pink-200 px-4 py-2.5 rounded-xl text-xs font-bold border border-pink-700 flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-lock text-pink-400"></i> Painel
-                    </button>
-                    <button onclick="toggleCarrinho()" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition relative">
-                        <i class="fa-solid fa-cart-shopping"></i> Carrinho
-                        <span id="badge-carrinho-desktop" class="bg-white text-pink-600 text-[10px] font-black px-1.5 py-0.5 rounded-full">0</span>
-                    </button>
-                </div>
+    <!-- Cabeçalho -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-pink-600 flex items-center gap-2">
+                <i class="fa-solid fa-gem"></i> Fav.mimos
+            </h1>
+            
+            <div class="flex items-center gap-2">
+                <!-- Botão Painel la em cima -->
+                <button onclick="abrirPainelAdm()" class="bg-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 shadow hover:bg-pink-700 transition">
+                    <i class="fa-solid fa-lock"></i> Painel
+                </button>
+                
+                <!-- Carrinho no Topo -->
+                <button onclick="toggleCarrinho()" class="bg-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 shadow hover:bg-pink-700 transition">
+                    <i class="fa-solid fa-shopping-bag"></i> Carrinho <span id="contador-carrinho" class="bg-white text-pink-600 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                </button>
             </div>
         </div>
     </header>
 
     <!-- Conteúdo Principal -->
-    <main class="max-w-6xl mx-auto px-4 py-6 space-y-4">
+    <main class="max-w-6xl mx-auto px-4 py-8">
         
         <!-- Filtros de Categorias -->
-        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <button onclick="filtrarCategoria('todos', this)" class="btn-categoria active bg-pink-600 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap shadow-md">Todos</button>
-            <button onclick="filtrarCategoria('infantil', this)" class="btn-categoria bg-pink-900 text-pink-200 border border-pink-800 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-pink-800">Infantil</button>
-            <button onclick="filtrarCategoria('maquiagem', this)" class="btn-categoria bg-pink-900 text-pink-200 border border-pink-800 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-pink-800">Maquiagem</button>
-            <button onclick="filtrarCategoria('higiene', this)" class="btn-categoria bg-pink-900 text-pink-200 border border-pink-800 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-pink-800">Higiene</button>
-            <button onclick="filtrarCategoria('hidratante', this)" class="btn-categoria bg-pink-900 text-pink-200 border border-pink-800 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-pink-800">Hidratante</button>
-            <button onclick="filtrarCategoria('bodysplash', this)" class="btn-categoria bg-pink-900 text-pink-200 border border-pink-800 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-pink-800">Body Splash</button>
-            <button onclick="filtrarCategoria('relogio', this)" class="btn-categoria bg-pink-900 text-pink-200 border border-pink-800 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-pink-800">Relógio</button>
+        <div class="flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-none">
+            <button onclick="filtrarProdutos('todos')" class="filtro-btn active bg-pink-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-sm transition whitespace-nowrap">Todos</button>
+            <button onclick="filtrarProdutos('infantil')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Infantil</button>
+            <button onclick="filtrarProdutos('maquiagem')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Maquiagem</button>
+            <button onclick="filtrarProdutos('higiene')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Higiene</button>
+            <button onclick="filtrarProdutos('hidratante')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Hidratante</button>
+            <button onclick="filtrarProdutos('bodysplash')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Body Splash</button>
+            <button onclick="filtrarProdutos('relogio')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Relógio</button>
+            <button onclick="filtrarProdutos('cabelo')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Cuidados Capilares</button>
+            <button onclick="filtrarProdutos('intimo')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Íntimo & Facial</button>
         </div>
 
-        <!-- Título da Seção (Atualizado para "Todos os Produtos") -->
-        <div class="mb-2">
-            <h2 id="titulo-secao" class="text-sm font-extrabold text-pink-200 uppercase tracking-wide">Todos os Produtos</h2>
+        <!-- Seção mudada para "Todos os Produtos" -->
+        <div class="mb-4">
+            <h2 id="titulo-secao" class="text-base font-bold text-slate-800">Todos os Produtos</h2>
         </div>
 
         <!-- Vitrine de Produtos -->
-        <div id="vitrine-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <!-- Cards injetados via JS -->
-        </div>
-
-    </main>
-
-    <!-- Barra Fixa Inferior (Apenas para Mobile) com Catálogo, Carrinho e Vendas -->
-    <div class="fixed bottom-0 left-0 right-0 bg-pink-950/95 border-t border-pink-900 p-2 z-40 backdrop-blur-md md:hidden">
-        <div class="max-w-md mx-auto flex justify-around items-center">
-            <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center text-pink-400 active:text-white py-1 px-4">
-                <i class="fa-solid fa-gem text-lg"></i>
-                <span class="text-[10px] font-bold mt-1">Catálogo</span>
-            </button>
-            <button onclick="toggleCarrinho()" class="flex flex-col items-center text-pink-400 active:text-white py-1 px-4 relative">
-                <i class="fa-solid fa-cart-shopping text-lg"></i>
-                <span class="text-[10px] font-bold mt-1">Carrinho</span>
-                <span id="badge-carrinho-mobile" class="absolute -top-1 right-2 bg-pink-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-pink-950">0</span>
-            </button>
-            <button onclick="abrirPainelAdm()" class="flex flex-col items-center text-pink-400 active:text-white py-1 px-4">
-                <i class="fa-solid fa-chart-pie text-lg"></i>
-                <span class="text-[10px] font-bold mt-1">Vendas</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Modal do Carrinho -->
-    <div id="modal-carrinho" class="fixed inset-0 bg-black/80 hidden justify-end z-50 backdrop-blur-sm">
-        <div class="bg-pink-950 text-pink-100 w-full max-w-md h-full p-5 flex flex-col border-l border-pink-900 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-pink-900 pb-3">
-                <h2 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-cart-shopping text-pink-500"></i> Seu Carrinho
-                </h2>
-                <button onclick="toggleCarrinho()" class="text-pink-400 hover:text-white text-2xl p-1">&times;</button>
-            </div>
-            
-            <div id="lista-carrinho" class="flex-1 overflow-y-auto py-3 space-y-3">
-                <!-- Itens -->
-            </div>
-
-            <div class="border-t border-pink-900 pt-3 space-y-3">
-                <div class="flex justify-between items-center font-bold text-base pt-1">
-                    <span class="text-pink-300">Total:</span>
-                    <span id="valor-total" class="text-xl font-black text-pink-400">R$ 0,00</span>
-                </div>
-
-                <button onclick="finalizarPedido()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-extrabold shadow-lg flex items-center justify-center gap-2 active:scale-[0.98] transition">
-                    <i class="fa-brands fa-whatsapp text-xl"></i> Finalizar Pedido via WhatsApp
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Painel Administrativo -->
-    <div id="modal-adm" class="fixed inset-0 bg-black/85 hidden items-center justify-center z-50 p-3 backdrop-blur-sm">
-        <div class="bg-pink-950 border border-pink-900 w-full max-w-lg rounded-2xl p-4 shadow-2xl flex flex-col max-h-[92vh]">
-            <div class="flex justify-between items-center border-b border-pink-900 pb-3">
-                <h2 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-chart-pie text-pink-500"></i> Painel Administrativo
-                </h2>
-                <button onclick="fecharPainelAdm()" class="text-pink-400 hover:text-white text-2xl p-1">&times;</button>
-            </div>
-
-            <!-- Tela de Senha -->
-            <div id="bloco-senha" class="py-8 text-center space-y-4">
-                <i class="fa-solid fa-user-lock text-3xl text-pink-500/80"></i>
-                <p class="text-pink-300 text-xs">Digite a senha para gerenciar a loja:</p>
-                <div class="flex flex-col gap-2 max-w-xs mx-auto">
-                    <input type="password" id="input-senha" inputmode="numeric" placeholder="Senha" class="bg-pink-900 border border-pink-800 px-4 py-3 rounded-xl text-center text-white text-lg focus:outline-none focus:border-pink-600">
-                    <button onclick="verificarSenha()" class="bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl font-bold text-sm">Acessar Painel</button>
-                </div>
-                <p id="erro-senha" class="text-red-400 text-xs hidden font-bold">Senha incorreta!</p>
-            </div>
-
-            <!-- Conteúdo do Painel com Abas -->
-            <div id="bloco-conteudo-adm" class="hidden flex-1 overflow-y-auto space-y-4 pt-3">
-                <div class="flex bg-pink-900 p-1 rounded-xl border border-pink-800">
-                    <button onclick="mudarAbaAdm('relatorios')" id="tab-btn-relatorios" class="flex-1 py-2 rounded-lg text-xs font-bold bg-pink-700 text-white transition">Relatórios</button>
-                    <button onclick="mudarAbaAdm('produtos')" id="tab-btn-produtos" class="flex-1 py-2 rounded-lg text-xs font-bold text-pink-300 hover:text-white transition">Gerenciar Produtos</button>
-                </div>
-
-                <!-- Aba Relatórios -->
-                <div id="aba-relatorios" class="space-y-4">
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div class="bg-pink-900 p-2.5 rounded-xl border border-pink-800">
-                            <span class="text
+        <div id="vitrine-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <!-- Injetado
