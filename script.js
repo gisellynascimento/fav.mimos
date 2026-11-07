@@ -14,7 +14,6 @@ let produtos = JSON.parse(localStorage.getItem('produtos_fav_mimos')) || [
     { id: 11, nome: "Água Micelar Limpeza Facial", categoria: "intimo", preco: 27.90, imagem: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&auto=format&fit=crop&q=60" }
 ];
 
-// Lista inicial de bairros com taxa (personalizável no painel)
 let bairrosTaxas = JSON.parse(localStorage.getItem('bairros_taxas_fav_mimos')) || [
     { id: 1, nome: "Centro", taxa: 5.00 },
     { id: 2, nome: "Pelinca", taxa: 6.00 },
@@ -159,21 +158,21 @@ function atualizarCarrinho() {
         }
     }
 
-    // Gerenciamento de Entrega / Retirada e Cálculo
+    // Exibe Bairro e Endereço ao selecionar "Entrega"
     const tipoEntrega = document.getElementById('tipo-entrega')?.value;
-    const boxBairro = document.getElementById('box-select-bairro');
+    const boxDadosEntrega = document.getElementById('box-dados-entrega');
     const linhaTaxaResumo = document.getElementById('linha-taxa-resumo');
     const valorTaxaExibido = document.getElementById('valor-taxa-exibido');
     const selectBairro = document.getElementById('select-bairro');
 
     let taxa = 0;
     if (tipoEntrega === 'entrega') {
-        boxBairro?.classList.remove('hidden');
+        boxDadosEntrega?.classList.remove('hidden');
         linhaTaxaResumo?.classList.remove('hidden');
         taxa = parseFloat(selectBairro?.value) || 0;
         if (valorTaxaExibido) valorTaxaExibido.innerText = `R$ ${taxa.toFixed(2).replace('.', ',')}`;
     } else {
-        boxBairro?.classList.add('hidden');
+        boxDadosEntrega?.classList.add('hidden');
         linhaTaxaResumo?.classList.add('hidden');
     }
 
@@ -201,8 +200,28 @@ function finalizarPedido() {
 
     const tipoEntrega = document.getElementById('tipo-entrega').value;
     const selectBairro = document.getElementById('select-bairro');
-    const bairroTexto = selectBairro?.options[selectBairro.selectedIndex]?.text || '';
-    const taxaEntrega = tipoEntrega === 'entrega' ? (parseFloat(selectBairro.value) || 0) : 0;
+    const inputEndereco = document.getElementById('input-endereco');
+    const erroEndereco = document.getElementById('erro-endereco');
+
+    let detalheEntrega = "";
+    let taxaEntrega = 0;
+
+    if (tipoEntrega === 'entrega') {
+        const enderecoTexto = inputEndereco.value.trim();
+        if (!enderecoTexto) {
+            if(erroEndereco) erroEndereco.classList.remove('hidden');
+            inputEndereco.focus();
+            return;
+        }
+        if(erroEndereco) erroEndereco.classList.add('hidden');
+
+        const bairroTexto = selectBairro?.options[selectBairro.selectedIndex]?.text || '';
+        taxaEntrega = parseFloat(selectBairro.value) || 0;
+        detalheEntrega = `🚚 *Entrega a Domicílio*\n📍 *Bairro:* ${bairroTexto}\n🏠 *Endereço:* ${enderecoTexto}`;
+    } else {
+        detalheEntrega = `🛍️ *Retirada no Local*`;
+    }
+
     const formaPagamento = document.getElementById('forma-pagamento').value;
 
     let subtotal = 0, msgItens = "";
@@ -219,14 +238,10 @@ function finalizarPedido() {
     });
     localStorage.setItem('historico_vendas_mimos', JSON.stringify(historicoVendas));
 
-    let detalheEntrega = tipoEntrega === 'entrega' 
-        ? `🚚 *Entrega:* ${bairroTexto}` 
-        : `🛍️ *Retirada no Local*`;
-
     const mensagemText = `Olá! Gostaria de fazer o seguinte pedido na *Fav.mimos*:\n\n` +
         `${msgItens}\n` +
         `-------------------------------\n` +
-        `📦 *Tipo:* ${detalheEntrega}\n` +
+        `${detalheEntrega}\n` +
         `💳 *Forma de Pagamento:* ${formaPagamento}\n` +
         `💰 *Total Final: R$ ${totalFinal.toFixed(2).replace('.', ',')}*`;
 
@@ -240,7 +255,7 @@ function finalizarPedido() {
     window.open(`https://wa.me/${seuNumeroWhatsApp}?text=${mensagem}`, '_blank');
 }
 
-// Funções do Painel Administrativo com Senha e Travamento de Fundo
+// Painel ADM
 function abrirPainelAdm() {
     const modal = document.getElementById('modal-adm');
     if (modal) {
@@ -286,7 +301,6 @@ function mudarAbaAdm(aba) {
     const divProd = document.getElementById('aba-produtos');
     const divTaxas = document.getElementById('aba-taxas');
 
-    // Desativa todos
     [btnRel, btnProd, btnTaxas].forEach(b => b.className = "flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition");
     [divRel, divProd, divTaxas].forEach(d => d.classList.add('hidden'));
 
@@ -358,7 +372,6 @@ function limparHistorico() {
     }
 }
 
-// Gerenciamento CRUD de Produtos
 function carregarCrudProdutos() {
     const lista = document.getElementById('lista-crud-produtos');
     if (!lista) return;
@@ -450,7 +463,6 @@ function excluirProduto(id) {
     }
 }
 
-// Gerenciamento CRUD de Taxas por Bairro
 function carregarCrudTaxas() {
     const lista = document.getElementById('lista-crud-taxas');
     if (!lista) return;
