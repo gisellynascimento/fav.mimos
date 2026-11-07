@@ -77,7 +77,7 @@
         </div>
     </div>
 
-    <!-- Modal do Carrinho (Com Retirada/Entrega e Pagamento - Sem Taxa Visível ao Cliente) -->
+    <!-- Modal do Carrinho com Seleção de Taxa por Bairro -->
     <div id="modal-carrinho" class="fixed inset-0 bg-black/50 hidden justify-end z-50">
         <div class="bg-white w-full max-w-md h-full p-6 flex flex-col shadow-xl">
             <div class="flex justify-between items-center border-b pb-4">
@@ -91,8 +91,16 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tipo de Pedido:</label>
                     <select id="tipo-entrega" onchange="atualizarCarrinho()" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-pink-500">
-                        <option value="retirada">Retirada no Local</option>
+                        <option value="retirada">Retirada no Local (Sem Taxa)</option>
                         <option value="entrega">Entrega a Domicílio</option>
+                    </select>
+                </div>
+
+                <!-- Campo de Escolha do Bairro (Aparece se for Entrega) -->
+                <div id="box-select-bairro" class="hidden">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Selecione o seu Bairro/Região:</label>
+                    <select id="select-bairro" onchange="atualizarCarrinho()" class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-pink-500">
+                        <!-- Injetado pelo JS -->
                     </select>
                 </div>
 
@@ -105,9 +113,20 @@
                     </select>
                 </div>
 
-                <div class="flex justify-between items-center pt-2 font-bold text-lg">
-                    <span>Total:</span>
-                    <span id="valor-total" class="text-pink-600">R$ 0,00</span>
+                <!-- Exibição resumida dos valores -->
+                <div class="space-y-1 pt-2 border-t text-xs text-slate-600">
+                    <div class="flex justify-between">
+                        <span>Produtos:</span>
+                        <span id="valor-subtotal">R$ 0,00</span>
+                    </div>
+                    <div id="linha-taxa-resumo" class="flex justify-between text-pink-600 hidden font-medium">
+                        <span>Taxa de Entrega:</span>
+                        <span id="valor-taxa-exibido">R$ 0,00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-base font-bold text-slate-900 pt-1">
+                        <span>Total:</span>
+                        <span id="valor-total" class="text-pink-600">R$ 0,00</span>
+                    </div>
                 </div>
 
                 <button onclick="finalizarPedido()" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
@@ -117,7 +136,7 @@
         </div>
     </div>
 
-    <!-- Modal Painel Administrativo com Senha e Abas -->
+    <!-- Modal Painel ADM (Com 3 Abas: Relatórios, Produtos e Taxas por Bairro) -->
     <div id="modal-adm" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-3 backdrop-blur-sm">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-4 text-slate-100 shadow-2xl flex flex-col max-h-[92vh]">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -141,9 +160,10 @@
             <!-- Conteúdo do Painel com Abas -->
             <div id="bloco-conteudo-adm" class="hidden flex-1 overflow-y-auto space-y-4 pt-3">
                 
-                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-                    <button onclick="mudarAbaAdm('relatorios')" id="tab-btn-relatorios" class="flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white transition">Relatórios</button>
-                    <button onclick="mudarAbaAdm('produtos')" id="tab-btn-produtos" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Gerenciar Produtos</button>
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
+                    <button onclick="mudarAbaAdm('relatorios')" id="tab-btn-relatorios" class="flex-1 py-2 rounded-lg font-bold bg-slate-800 text-white transition">Relatórios</button>
+                    <button onclick="mudarAbaAdm('produtos')" id="tab-btn-produtos" class="flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition">Produtos</button>
+                    <button onclick="mudarAbaAdm('taxas')" id="tab-btn-taxas" class="flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition">Taxas por Bairro</button>
                 </div>
 
                 <!-- Aba Relatórios -->
@@ -160,14 +180,6 @@
                         <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                             <span class="text-[10px] text-slate-500 block font-bold uppercase">Mês</span>
                             <h3 id="relatorio-mes" class="text-sm font-black text-emerald-400 mt-0.5">R$ 0,00</h3>
-                        </div>
-                    </div>
-
-                    <!-- Configurar Taxa de Entrega Exclusiva da Dona -->
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
-                        <span class="text-xs font-bold text-pink-400 block"><i class="fa-solid fa-motorcycle"></i> Taxa de Entrega Padrão (Só você vê):</span>
-                        <div class="flex gap-2">
-                            <input type="number" id="taxa-entrega-adm" placeholder="0.00" value="5.00" oninput="atualizarCarrinho()" class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-white w-full text-sm">
                         </div>
                     </div>
 
@@ -216,6 +228,25 @@
                         <div id="lista-crud-produtos" class="space-y-1.5 max-h-48 overflow-y-auto bg-slate-950 p-2 rounded-xl border border-slate-800"></div>
                     </div>
                 </div>
+
+                <!-- Nova Aba: Cadastrar Taxas por Bairro -->
+                <div id="aba-taxas" class="hidden space-y-4">
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-3">
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Cadastrar / Editar Taxa por Bairro</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="taxa-bairro-nome" placeholder="Nome do Bairro" onkeyup="if(event.key === 'Enter') salvarTaxaBairro()" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="number" id="taxa-bairro-valor" placeholder="Valor da Taxa (R$)" onkeyup="if(event.key === 'Enter') salvarTaxaBairro()" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                        </div>
+                        <button onclick="salvarTaxaBairro()" class="w-full bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-xl text-xs font-bold">Salvar Taxa do Bairro</button>
+                        <span id="aviso-taxa-ok" class="text-emerald-400 text-[11px] font-bold hidden block text-center">Taxa salva com sucesso!</span>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-slate-300 text-xs mb-2">Bairros Cadastrados</h4>
+                        <div id="lista-crud-taxas" class="space-y-1.5 max-h-48 overflow-y-auto bg-slate-950 p-2 rounded-xl border border-slate-800"></div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
