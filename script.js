@@ -100,13 +100,16 @@ function atualizarCarrinho() {
     localStorage.setItem('carrinho_fav_mimos', JSON.stringify(carrinho));
     const lista = document.getElementById('lista-carrinho');
     const badgeInferior = document.getElementById('badge-carrinho-inferior');
+    const valorTotal = document.getElementById('valor-total');
     
     if (!lista) return;
 
     lista.innerHTML = '';
+    let subtotal = 0;
     let qtdTotal = 0;
 
     carrinho.forEach(item => {
+        subtotal += item.preco * item.quantidade;
         qtdTotal += item.quantidade;
 
         lista.innerHTML += `
@@ -138,29 +141,17 @@ function atualizarCarrinho() {
         }
     }
 
-    atualizarTotalComTaxa();
-}
-
-// Atualiza o total exibido considerando produtos + taxa de entrega opcional
-function atualizarTotalComTaxa() {
+    // Calcula total incluindo a taxa secreta da dona caso seja entrega
     const tipoEntrega = document.getElementById('tipo-entrega')?.value;
-    const boxTaxa = document.getElementById('box-taxa-entrega');
-    const valorTaxaInput = parseFloat(document.getElementById('valor-taxa-entrega')?.value) || 0;
-    
-    let taxa = 0;
+    const taxaAdm = parseFloat(document.getElementById('taxa-entrega-adm')?.value) || 0;
+    let totalFinal = subtotal;
+
     if (tipoEntrega === 'entrega') {
-        boxTaxa?.classList.remove('hidden');
-        taxa = valorTaxaInput;
-    } else {
-        boxTaxa?.classList.add('hidden');
+        totalFinal += taxaAdm;
     }
 
-    let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
-    let totalComTaxa = subtotal + taxa;
-
-    const valorTotalEl = document.getElementById('valor-total');
-    if (valorTotalEl) {
-        valorTotalEl.innerText = `R$ ${totalComTaxa.toFixed(2).replace('.', ',')}`;
+    if (valorTotal) {
+        valorTotal.innerText = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
     }
 }
 
@@ -179,12 +170,11 @@ function toggleCarrinho() {
 
 function finalizarPedido() {
     if (carrinho.length === 0) {
-        alert("Seu carrinho está vazio!");
         return;
     }
 
     const tipoEntrega = document.getElementById('tipo-entrega').value;
-    const taxaEntrega = tipoEntrega === 'entrega' ? (parseFloat(document.getElementById('valor-taxa-entrega').value) || 0) : 0;
+    const taxaEntrega = tipoEntrega === 'entrega' ? (parseFloat(document.getElementById('taxa-entrega-adm').value) || 0) : 0;
     const formaPagamento = document.getElementById('forma-pagamento').value;
 
     let subtotal = 0, msgItens = "";
@@ -202,7 +192,7 @@ function finalizarPedido() {
     localStorage.setItem('historico_vendas_mimos', JSON.stringify(historicoVendas));
 
     let detalheEntrega = tipoEntrega === 'entrega' 
-        ? `🚚 *Entrega* (Taxa: R$ ${taxaEntrega.toFixed(2).replace('.', ',')})` 
+        ? `🚚 *Entrega a Domicílio* (Taxa inclusa: R$ ${taxaEntrega.toFixed(2).replace('.', ',')})` 
         : `🛍️ *Retirada no Local*`;
 
     const mensagemText = `Olá! Gostaria de fazer o seguinte pedido na *Fav.mimos*:\n\n` +
@@ -222,12 +212,13 @@ function finalizarPedido() {
     window.open(`https://wa.me/${seuNumeroWhatsApp}?text=${mensagem}`, '_blank');
 }
 
-// Funções do Painel Administrativo com Senha
+// Funções do Painel Administrativo com Senha e Travamento de Fundo
 function abrirPainelAdm() {
     const modal = document.getElementById('modal-adm');
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        document.getElementById('corpo-pagina').classList.add('overflow-hidden', 'h-screen'); // Trava o fundo
     }
 }
 
@@ -236,6 +227,7 @@ function fecharPainelAdm() {
     if (modal) {
         modal.classList.remove('flex');
         modal.classList.add('hidden');
+        document.getElementById('corpo-pagina').classList.remove('overflow-hidden', 'h-screen'); // Destrava o fundo
     }
     document.getElementById('bloco-senha').classList.remove('hidden');
     document.getElementById('bloco-conteudo-adm').classList.add('hidden');
@@ -305,7 +297,7 @@ function carregarRelatorios() {
 
 function registrarVendaBalcao() {
     const val = parseFloat(document.getElementById('venda-manual-valor').value);
-    if(!val || val <= 0) return alert("Digite um valor válido");
+    if(!val || val <= 0) return;
 
     historicoVendas.push({
         data: new Date().toISOString(),
@@ -314,11 +306,17 @@ function registrarVendaBalcao() {
     localStorage.setItem('historico_vendas_mimos', JSON.stringify(historicoVendas));
     document.getElementById('venda-manual-valor').value = '';
     carregarRelatorios();
-    alert("Venda lançada com sucesso!");
+
+    // Aviso visual moderno sem usar alert()
+    const aviso = document.getElementById('aviso-venda-ok');
+    if(aviso) {
+        aviso.classList.remove('hidden');
+        setTimeout(() => aviso.classList.add('hidden'), 2500);
+    }
 }
 
 function limparHistorico() {
-    if(confirm("Apagar histórico de vendas?")) {
+    if(confirm("Deseja realmente limpar o histórico de vendas?")) {
         historicoVendas = [];
         localStorage.removeItem('historico_vendas_mimos');
         carregarRelatorios();
@@ -353,7 +351,7 @@ function salvarProduto() {
     const preco = parseFloat(document.getElementById('prod-preco').value);
     const imagem = document.getElementById('prod-imagem').value.trim();
 
-    if(!nome || isNaN(preco)) return alert("Preencha os campos obrigatórios!");
+    if(!nome || isNaN(preco)) return;
 
     if(idEdicao) {
         const p = produtos.find(item => item.id == idEdicao);
@@ -378,7 +376,13 @@ function salvarProduto() {
     limparFormProduto();
     carregarCrudProdutos();
     renderizarProdutos();
-    alert("Produto salvo com sucesso!");
+
+    // Aviso visual moderno sem alert()
+    const aviso = document.getElementById('aviso-produto-ok');
+    if(aviso) {
+        aviso.classList.remove('hidden');
+        setTimeout(() => aviso.classList.add('hidden'), 2500);
+    }
 }
 
 function editarProduto(id) {
@@ -396,11 +400,8 @@ function editarProduto(id) {
 }
 
 function limparFormProduto() {
+    document.getElementById('prod-edit-id').value = document.getElementById('prod-nome').value = document.getElementById('prod-categoria').value = document.getElementById('prod-preco').value = document.getElementById('prod-imagem').value = '';
     document.getElementById('prod-edit-id').value = '';
-    document.getElementById('prod-nome').value = '';
-    document.getElementById('prod-categoria').value = '';
-    document.getElementById('prod-preco').value = '';
-    document.getElementById('prod-imagem').value = '';
     document.getElementById('titulo-form-produto').innerText = "Adicionar Novo Produto";
     document.getElementById('btn-cancelar-edicao').classList.add('hidden');
 }
