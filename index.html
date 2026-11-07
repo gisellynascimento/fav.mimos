@@ -97,6 +97,100 @@
         </div>
     </div>
 
+    <!-- Modal Painel de Controle (Estilo idêntico ao modelo da moto) -->
+    <div id="modal-adm" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-3 backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-4 text-slate-100 shadow-2xl flex flex-col max-h-[92vh]">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-pink-500"></i> Painel Fav.mimos
+                </h2>
+                <button onclick="fecharPainelAdm()" class="text-slate-400 hover:text-white text-2xl p-1">&times;</button>
+            </div>
+
+            <!-- Tela de Senha -->
+            <div id="bloco-senha" class="py-8 text-center space-y-4">
+                <i class="fa-solid fa-user-lock text-3xl text-pink-500/80"></i>
+                <p class="text-slate-300 text-xs">Digite a senha para gerenciar o sistema:</p>
+                <div class="flex flex-col gap-2 max-w-xs mx-auto">
+                    <input type="password" id="input-senha" inputmode="numeric" placeholder="Senha" class="bg-slate-950 border border-slate-800 px-4 py-3 rounded-xl text-center text-white text-lg focus:outline-none focus:border-pink-600">
+                    <button onclick="verificarSenha()" class="bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-xl font-bold text-sm">Acessar Painel</button>
+                </div>
+                <p id="erro-senha" class="text-red-400 text-xs hidden font-bold">Senha incorreta!</p>
+            </div>
+
+            <!-- Conteúdo do Painel com Abas -->
+            <div id="bloco-conteudo-adm" class="hidden flex-1 overflow-y-auto space-y-4 pt-3">
+                
+                <!-- Abas -->
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button onclick="mudarAbaAdm('relatorios')" id="tab-btn-relatorios" class="flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white transition">Relatórios</button>
+                    <button onclick="mudarAbaAdm('produtos')" id="tab-btn-produtos" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Gerenciar Produtos</button>
+                </div>
+
+                <!-- Aba Relatórios -->
+                <div id="aba-relatorios" class="space-y-4">
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-500 block font-bold uppercase">Hoje</span>
+                            <h3 id="relatorio-hoje" class="text-sm font-black text-white mt-0.5">R$ 0,00</h3>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-500 block font-bold uppercase">Semana</span>
+                            <h3 id="relatorio-semana" class="text-sm font-black text-white mt-0.5">R$ 0,00</h3>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-500 block font-bold uppercase">Mês</span>
+                            <h3 id="relatorio-mes" class="text-sm font-black text-emerald-400 mt-0.5">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
+                        <span class="text-xs font-bold text-slate-300 block">Lançar Venda no Caixa:</span>
+                        <div class="flex gap-2">
+                            <input type="number" id="venda-manual-valor" placeholder="Valor R$" class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-white w-full text-sm">
+                            <button onclick="registrarVendaBalcao()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">Lançar</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-300 text-xs">Histórico de Vendas</h4>
+                            <button onclick="limparHistorico()" class="text-[11px] text-red-400 font-semibold hover:underline">Limpar</button>
+                        </div>
+                        <div id="lista-historico-vendas" class="space-y-1.5 max-h-36 overflow-y-auto bg-slate-950 p-2 rounded-xl border border-slate-800"></div>
+                    </div>
+                </div>
+
+                <!-- Aba Produtos (CRUD) -->
+                <div id="aba-produtos" class="hidden space-y-4">
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-3">
+                        <h4 id="titulo-form-produto" class="text-xs font-bold text-white uppercase tracking-wider">Adicionar Novo Produto</h4>
+                        <input type="hidden" id="prod-edit-id">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="prod-nome" placeholder="Nome do Produto" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="text" id="prod-categoria" placeholder="Categoria (ex: maquiagem)" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" id="prod-preco" placeholder="Preço (R$)" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                            <input type="text" id="prod-imagem" placeholder="URL da Imagem" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-xs text-white">
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="salvarProduto()" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-xl text-xs font-bold">Salvar Produto</button>
+                            <button onclick="limparFormProduto()" id="btn-cancelar-edicao" class="hidden bg-slate-800 text-slate-300 px-3 py-2 rounded-xl text-xs font-bold">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-300 text-xs">Produtos Cadastrados</h4>
+                        </div>
+                        <div id="lista-crud-produtos" class="space-y-1.5 max-h-48 overflow-y-auto bg-slate-950 p-2 rounded-xl border border-slate-800"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Link para o JavaScript externo -->
     <script src="script.js"></script>
 </body>
