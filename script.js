@@ -74,7 +74,7 @@ function carregarSelectBairros() {
 
     select.innerHTML = '';
     bairrosTaxas.forEach(b => {
-        select.innerHTML += `<option value="${b.taxa}">${b.nome} - R$ ${b.taxa.toFixed(2).replace('.', ',')}</option>`;
+        select.innerHTML += `<option value="${b.taxa}">${b.nome} (Taxa: R$ ${b.taxa.toFixed(2).replace('.', ',')})</option>`;
     });
 }
 
@@ -158,7 +158,7 @@ function atualizarCarrinho() {
         }
     }
 
-    // Exibe Bairro e Endereço ao selecionar "Entrega"
+    // Exibição dos campos de Endereço + Bairro com Taxa ao escolher "Entrega a Domicílio"
     const tipoEntrega = document.getElementById('tipo-entrega')?.value;
     const boxDadosEntrega = document.getElementById('box-dados-entrega');
     const linhaTaxaResumo = document.getElementById('linha-taxa-resumo');
@@ -217,7 +217,7 @@ function finalizarPedido() {
 
         const bairroTexto = selectBairro?.options[selectBairro.selectedIndex]?.text || '';
         taxaEntrega = parseFloat(selectBairro.value) || 0;
-        detalheEntrega = `🚚 *Entrega a Domicílio*\n📍 *Bairro:* ${bairroTexto}\n🏠 *Endereço:* ${enderecoTexto}`;
+        detalheEntrega = `🚚 *Entrega a Domicílio*\n🏠 *Endereço:* ${enderecoTexto}\n📍 *Bairro:* ${bairroTexto}`;
     } else {
         detalheEntrega = `🛍️ *Retirada no Local*`;
     }
