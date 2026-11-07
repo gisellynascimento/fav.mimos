@@ -1,6 +1,4 @@
-const SENHA_ADM = "2307";
-
-let produtos = JSON.parse(localStorage.getItem('produtos_fav_mimos')) || [
+const produtos = [
     { id: 1, nome: "Colônia Infantil Cheirinho de Amor", categoria: "infantil", preco: 35.90, imagem: "https://images.unsplash.com/photo-1515688594390-b649af70d282?w=400&auto=format&fit=crop&q=60" },
     { id: 2, nome: "Kit Maquiagem Completo Glow", categoria: "maquiagem", preco: 89.90, imagem: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&auto=format&fit=crop&q=60" },
     { id: 3, nome: "Necessaire de Higiene Pessoal", categoria: "higiene", preco: 29.90, imagem: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&auto=format&fit=crop&q=60" },
@@ -14,16 +12,9 @@ let produtos = JSON.parse(localStorage.getItem('produtos_fav_mimos')) || [
     { id: 11, nome: "Água Micelar Limpeza Facial", categoria: "intimo", preco: 27.90, imagem: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&auto=format&fit=crop&q=60" }
 ];
 
-let carrinho = JSON.parse(localStorage.getItem('carrinho_fav_mimos')) || [];
-let historicoVendas = JSON.parse(localStorage.getItem('historico_vendas_mimos')) || [];
-let categoriaAtual = 'todos';
+let carrinho = [];
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderizarProdutos();
-    atualizarCarrinho();
-});
-
-function renderizarProdutos(filtro = categoriaAtual) {
+function renderizarProdutos(filtro = 'todos') {
     const vitrine = document.getElementById('vitrine-produtos');
     if (!vitrine) return;
     vitrine.innerHTML = '';
@@ -31,11 +22,6 @@ function renderizarProdutos(filtro = categoriaAtual) {
     const produtosFiltrados = filtro === 'todos' 
         ? produtos 
         : produtos.filter(p => p.categoria === filtro);
-
-    if (produtosFiltrados.length === 0) {
-        vitrine.innerHTML = '<p class="col-span-full text-center text-slate-500 py-12 text-sm">Nenhum produto encontrado.</p>';
-        return;
-    }
 
     produtosFiltrados.forEach(produto => {
         vitrine.innerHTML += `
@@ -60,17 +46,13 @@ function renderizarProdutos(filtro = categoriaAtual) {
     });
 }
 
-function filtrarProdutos(categoria, elemento) {
-    categoriaAtual = categoria;
+function filtrarProdutos(categoria) {
     document.querySelectorAll('.filtro-btn').forEach(btn => {
         btn.classList.remove('bg-pink-600', 'text-white');
         btn.classList.add('bg-white', 'text-slate-600');
     });
-    
-    if (elemento) {
-        elemento.classList.remove('bg-white', 'text-slate-600');
-        elemento.classList.add('bg-pink-600', 'text-white');
-    }
+    event.target.classList.remove('bg-white', 'text-slate-600');
+    event.target.classList.add('bg-pink-600', 'text-white');
     
     renderizarProdutos(categoria);
 }
@@ -87,17 +69,7 @@ function adicionarAoCarrinho(id) {
     atualizarCarrinho();
 }
 
-function alterarQuantidade(id, delta) {
-    const item = carrinho.find(i => i.id === id);
-    if(item) {
-        item.quantidade += delta;
-        if(item.quantidade <= 0) carrinho = carrinho.filter(i => i.id !== id);
-    }
-    atualizarCarrinho();
-}
-
 function atualizarCarrinho() {
-    localStorage.setItem('carrinho_fav_mimos', JSON.stringify(carrinho));
     const lista = document.getElementById('lista-carrinho');
     const badgeInferior = document.getElementById('badge-carrinho-inferior');
     const valorTotal = document.getElementById('valor-total');
@@ -118,16 +90,9 @@ function atualizarCarrinho() {
                     <h4 class="font-semibold text-sm text-slate-800">${item.nome}</h4>
                     <span class="text-xs text-slate-500">R$ ${item.preco.toFixed(2).replace('.', ',')} x ${item.quantidade}</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="flex items-center bg-white border border-slate-200 rounded-lg">
-                        <button onclick="alterarQuantidade(${item.id}, -1)" class="px-2 py-0.5 text-slate-600 font-bold">-</button>
-                        <span class="px-2 text-slate-800 font-bold text-xs">${item.quantidade}</span>
-                        <button onclick="alterarQuantidade(${item.id}, 1)" class="px-2 py-0.5 text-slate-600 font-bold">+</button>
-                    </div>
-                    <button onclick="removerDoCarrinho(${item.id})" class="text-red-400 hover:text-red-600 text-sm">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
+                <button onclick="removerDoCarrinho(${item.id})" class="text-red-400 hover:text-red-600 text-sm">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
             </div>
         `;
     });
@@ -154,3 +119,33 @@ function removerDoCarrinho(id) {
 function toggleCarrinho() {
     const modal = document.getElementById('modal-carrinho');
     if (modal) {
+        modal.classList.toggle('hidden');
+        modal.classList.toggle('flex');
+    }
+}
+
+function abrirPainelAdm() {
+    alert("Painel administrativo da Fav.mimos");
+}
+
+function finalizarPedido() {
+    if (carrinho.length === 0) {
+        alert("Seu carrinho está vazio!");
+        return;
+    }
+
+    let mensagem = "Olá! Gostaria de fazer o pedido dos seguintes mimos da *Fav.mimos*:%0A%0A";
+    let total = 0;
+
+    carrinho.forEach(item => {
+        mensagem += `- ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2)})%0A`;
+        total += item.preco * item.quantidade;
+    });
+
+    mensagem += `%0A*Total: R$ ${total.toFixed(2).replace('.', ',')}*`;
+    
+    const seuNumeroWhatsApp = "5522999999999"; 
+    window.open(`https://wa.me/${seuNumeroWhatsApp}?text=${mensagem}`, '_blank');
+}
+
+renderizarProdutos();
