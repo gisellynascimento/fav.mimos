@@ -14,12 +14,21 @@ let produtos = JSON.parse(localStorage.getItem('produtos_fav_mimos')) || [
     { id: 11, nome: "Água Micelar Limpeza Facial", categoria: "intimo", preco: 27.90, imagem: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&auto=format&fit=crop&q=60" }
 ];
 
+// Lista inicial de bairros com taxa (personalizável no painel)
+let bairrosTaxas = JSON.parse(localStorage.getItem('bairros_taxas_fav_mimos')) || [
+    { id: 1, nome: "Centro", taxa: 5.00 },
+    { id: 2, nome: "Pelinca", taxa: 6.00 },
+    { id: 3, nome: "Parque Tamandaré", taxa: 7.00 },
+    { id: 4, nome: "Guarus", taxa: 10.00 }
+];
+
 let carrinho = JSON.parse(localStorage.getItem('carrinho_fav_mimos')) || [];
 let historicoVendas = JSON.parse(localStorage.getItem('historico_vendas_mimos')) || [];
 let categoriaAtual = 'todos';
 
 document.addEventListener('DOMContentLoaded', () => {
     renderizarProdutos();
+    carregarSelectBairros();
     atualizarCarrinho();
 });
 
@@ -57,6 +66,16 @@ function renderizarProdutos(filtro = categoriaAtual) {
                 </div>
             </div>
         `;
+    });
+}
+
+function carregarSelectBairros() {
+    const select = document.getElementById('select-bairro');
+    if (!select) return;
+
+    select.innerHTML = '';
+    bairrosTaxas.forEach(b => {
+        select.innerHTML += `<option value="${b.taxa}">${b.nome} - R$ ${b.taxa.toFixed(2).replace('.', ',')}</option>`;
     });
 }
 
@@ -100,7 +119,6 @@ function atualizarCarrinho() {
     localStorage.setItem('carrinho_fav_mimos', JSON.stringify(carrinho));
     const lista = document.getElementById('lista-carrinho');
     const badgeInferior = document.getElementById('badge-carrinho-inferior');
-    const valorTotal = document.getElementById('valor-total');
     
     if (!lista) return;
 
@@ -141,18 +159,28 @@ function atualizarCarrinho() {
         }
     }
 
-    // Calcula total incluindo a taxa secreta da dona caso seja entrega
+    // Gerenciamento de Entrega / Retirada e Cálculo
     const tipoEntrega = document.getElementById('tipo-entrega')?.value;
-    const taxaAdm = parseFloat(document.getElementById('taxa-entrega-adm')?.value) || 0;
-    let totalFinal = subtotal;
+    const boxBairro = document.getElementById('box-select-bairro');
+    const linhaTaxaResumo = document.getElementById('linha-taxa-resumo');
+    const valorTaxaExibido = document.getElementById('valor-taxa-exibido');
+    const selectBairro = document.getElementById('select-bairro');
 
+    let taxa = 0;
     if (tipoEntrega === 'entrega') {
-        totalFinal += taxaAdm;
+        boxBairro?.classList.remove('hidden');
+        linhaTaxaResumo?.classList.remove('hidden');
+        taxa = parseFloat(selectBairro?.value) || 0;
+        if (valorTaxaExibido) valorTaxaExibido.innerText = `R$ ${taxa.toFixed(2).replace('.', ',')}`;
+    } else {
+        boxBairro?.classList.add('hidden');
+        linhaTaxaResumo?.classList.add('hidden');
     }
 
-    if (valorTotal) {
-        valorTotal.innerText = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
-    }
+    let totalFinal = subtotal + taxa;
+
+    document.getElementById('valor-subtotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    document.getElementById('valor-total').innerText = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
 }
 
 function removerDoCarrinho(id) {
@@ -169,12 +197,12 @@ function toggleCarrinho() {
 }
 
 function finalizarPedido() {
-    if (carrinho.length === 0) {
-        return;
-    }
+    if (carrinho.length === 0) return;
 
     const tipoEntrega = document.getElementById('tipo-entrega').value;
-    const taxaEntrega = tipoEntrega === 'entrega' ? (parseFloat(document.getElementById('taxa-entrega-adm').value) || 0) : 0;
+    const selectBairro = document.getElementById('select-bairro');
+    const bairroTexto = selectBairro?.options[selectBairro.selectedIndex]?.text || '';
+    const taxaEntrega = tipoEntrega === 'entrega' ? (parseFloat(selectBairro.value) || 0) : 0;
     const formaPagamento = document.getElementById('forma-pagamento').value;
 
     let subtotal = 0, msgItens = "";
@@ -192,7 +220,7 @@ function finalizarPedido() {
     localStorage.setItem('historico_vendas_mimos', JSON.stringify(historicoVendas));
 
     let detalheEntrega = tipoEntrega === 'entrega' 
-        ? `🚚 *Entrega a Domicílio* (Taxa inclusa: R$ ${taxaEntrega.toFixed(2).replace('.', ',')})` 
+        ? `🚚 *Entrega:* ${bairroTexto}` 
         : `🛍️ *Retirada no Local*`;
 
     const mensagemText = `Olá! Gostaria de fazer o seguinte pedido na *Fav.mimos*:\n\n` +
@@ -218,7 +246,7 @@ function abrirPainelAdm() {
     if (modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-        document.getElementById('corpo-pagina').classList.add('overflow-hidden', 'h-screen'); // Trava o fundo
+        document.getElementById('corpo-pagina').classList.add('overflow-hidden', 'h-screen');
     }
 }
 
@@ -227,7 +255,7 @@ function fecharPainelAdm() {
     if (modal) {
         modal.classList.remove('flex');
         modal.classList.add('hidden');
-        document.getElementById('corpo-pagina').classList.remove('overflow-hidden', 'h-screen'); // Destrava o fundo
+        document.getElementById('corpo-pagina').classList.remove('overflow-hidden', 'h-screen');
     }
     document.getElementById('bloco-senha').classList.remove('hidden');
     document.getElementById('bloco-conteudo-adm').classList.add('hidden');
@@ -242,6 +270,7 @@ function verificarSenha() {
         document.getElementById('bloco-conteudo-adm').classList.remove('hidden');
         carregarRelatorios();
         carregarCrudProdutos();
+        carregarCrudTaxas();
     } else {
         const erroSenha = document.getElementById('erro-senha');
         if(erroSenha) erroSenha.classList.remove('hidden');
@@ -251,21 +280,28 @@ function verificarSenha() {
 function mudarAbaAdm(aba) {
     const btnRel = document.getElementById('tab-btn-relatorios');
     const btnProd = document.getElementById('tab-btn-produtos');
+    const btnTaxas = document.getElementById('tab-btn-taxas');
+    
     const divRel = document.getElementById('aba-relatorios');
     const divProd = document.getElementById('aba-produtos');
+    const divTaxas = document.getElementById('aba-taxas');
+
+    // Desativa todos
+    [btnRel, btnProd, btnTaxas].forEach(b => b.className = "flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition");
+    [divRel, divProd, divTaxas].forEach(d => d.classList.add('hidden'));
 
     if(aba === 'relatorios') {
-        btnRel.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white transition";
-        btnProd.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+        btnRel.className = "flex-1 py-2 rounded-lg font-bold bg-slate-800 text-white transition";
         divRel.classList.remove('hidden');
-        divProd.classList.add('hidden');
         carregarRelatorios();
-    } else {
-        btnProd.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white transition";
-        btnRel.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+    } else if(aba === 'produtos') {
+        btnProd.className = "flex-1 py-2 rounded-lg font-bold bg-slate-800 text-white transition";
         divProd.classList.remove('hidden');
-        divRel.classList.add('hidden');
         carregarCrudProdutos();
+    } else {
+        btnTaxas.className = "flex-1 py-2 rounded-lg font-bold bg-slate-800 text-white transition";
+        divTaxas.classList.remove('hidden');
+        carregarCrudTaxas();
     }
 }
 
@@ -307,7 +343,6 @@ function registrarVendaBalcao() {
     document.getElementById('venda-manual-valor').value = '';
     carregarRelatorios();
 
-    // Aviso visual moderno sem usar alert()
     const aviso = document.getElementById('aviso-venda-ok');
     if(aviso) {
         aviso.classList.remove('hidden');
@@ -323,6 +358,7 @@ function limparHistorico() {
     }
 }
 
+// Gerenciamento CRUD de Produtos
 function carregarCrudProdutos() {
     const lista = document.getElementById('lista-crud-produtos');
     if (!lista) return;
@@ -377,7 +413,6 @@ function salvarProduto() {
     carregarCrudProdutos();
     renderizarProdutos();
 
-    // Aviso visual moderno sem alert()
     const aviso = document.getElementById('aviso-produto-ok');
     if(aviso) {
         aviso.classList.remove('hidden');
@@ -412,5 +447,59 @@ function excluirProduto(id) {
         localStorage.setItem('produtos_fav_mimos', JSON.stringify(produtos));
         carregarCrudProdutos();
         renderizarProdutos();
+    }
+}
+
+// Gerenciamento CRUD de Taxas por Bairro
+function carregarCrudTaxas() {
+    const lista = document.getElementById('lista-crud-taxas');
+    if (!lista) return;
+    lista.innerHTML = '';
+
+    bairrosTaxas.forEach(b => {
+        lista.innerHTML += `
+            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 flex justify-between items-center text-xs">
+                <div>
+                    <span class="text-white font-bold block">${b.nome}</span>
+                    <span class="text-emerald-400 font-bold text-[10px]">Taxa: R$ ${b.taxa.toFixed(2).replace('.', ',')}</span>
+                </div>
+                <button onclick="excluirTaxaBairro(${b.id})" class="text-red-400 hover:text-red-300 px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+    });
+}
+
+function salvarTaxaBairro() {
+    const nome = document.getElementById('taxa-bairro-nome').value.trim();
+    const taxa = parseFloat(document.getElementById('taxa-bairro-valor').value);
+
+    if(!nome || isNaN(taxa)) return;
+
+    const novoId = bairrosTaxas.length > 0 ? Math.max(...bairrosTaxas.map(b => b.id)) + 1 : 1;
+    bairrosTaxas.push({ id: novoId, nome, taxa });
+
+    localStorage.setItem('bairros_taxas_fav_mimos', JSON.stringify(bairrosTaxas));
+    
+    document.getElementById('taxa-bairro-nome').value = '';
+    document.getElementById('taxa-bairro-valor').value = '';
+    
+    carregarCrudTaxas();
+    carregarSelectBairros();
+    atualizarCarrinho();
+
+    const aviso = document.getElementById('aviso-taxa-ok');
+    if(aviso) {
+        aviso.classList.remove('hidden');
+        setTimeout(() => aviso.classList.add('hidden'), 2500);
+    }
+}
+
+function excluirTaxaBairro(id) {
+    if(confirm("Deseja excluir esta taxa de bairro?")) {
+        bairrosTaxas = bairrosTaxas.filter(b => b.id !== id);
+        localStorage.setItem('bairros_taxas_fav_mimos', JSON.stringify(bairrosTaxas));
+        carregarCrudTaxas();
+        carregarSelectBairros();
+        atualizarCarrinho();
     }
 }
