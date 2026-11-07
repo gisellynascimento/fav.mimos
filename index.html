@@ -56,48 +56,7 @@
 
     </main>
 
-    <!-- Barra Fixa Inferior com itens em Rosa -->
-    <div class="fixed bottom-0 left-0 right-0 bg-slate-950/95 border-t border-slate-900 p-2 z-40 backdrop-blur-md">
+    <!-- Barra Fixa Inferior com fundo branco igual ao topo -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-2 z-40 shadow-lg">
         <div class="max-w-md mx-auto flex justify-around items-center">
-            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center text-pink-500 py-1 px-4 transition">
-                <i class="fa-solid fa-gem text-lg"></i>
-                <span class="text-[10px] font-bold mt-1">Catálogo</span>
-            </button>
-            <button onclick="toggleCarrinho()" class="flex flex-col items-center text-pink-500 py-1 px-4 relative transition">
-                <i class="fa-solid fa-cart-shopping text-lg"></i>
-                <span class="text-[10px] font-bold mt-1">Carrinho</span>
-                <span id="badge-carrinho-inferior" class="absolute -top-1 right-2 bg-pink-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-950 hidden">0</span>
-            </button>
-            <button onclick="abrirPainelAdm()" class="flex flex-col items-center text-pink-500 py-1 px-4 transition">
-                <i class="fa-solid fa-chart-pie text-lg"></i>
-                <span class="text-[10px] font-bold mt-1">Vendas</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Modal do Carrinho -->
-    <div id="modal-carrinho" class="fixed inset-0 bg-black/50 hidden justify-end z-50">
-        <div class="bg-white w-full max-w-md h-full p-6 flex flex-col shadow-xl">
-            <div class="flex justify-between items-center border-b pb-4">
-                <h2 class="text-lg font-bold text-slate-800">Seu Carrinho - Fav.mimos</h2>
-                <button onclick="toggleCarrinho()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
-            </div>
-            
-            <div id="lista-carrinho" class="flex-1 overflow-y-auto py-4 space-y-4"></div>
-
-            <div class="border-t pt-4">
-                <div class="flex justify-between mb-4 font-bold text-lg">
-                    <span>Total:</span>
-                    <span id="valor-total" class="text-pink-600">R$ 0,00</span>
-                </div>
-                <button onclick="finalizarPedido()" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold shadow hover:bg-green-700 transition flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-xl"></i> Finalizar Pedido via WhatsApp
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Link para o JavaScript externo -->
-    <script src="script.js"></script>
-</body>
-</html>
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center
