@@ -1,4 +1,4 @@
-// Catálogo atualizado com os novos produtos solicitados
+// Catálogo de produtos Fav.mimos
 const produtos = [
     { id: 1, nome: "Colônia Infantil Cheirinho de Amor", categoria: "infantil", preco: 35.90, imagem: "https://images.unsplash.com/photo-1515688594390-b649af70d282?w=400&auto=format&fit=crop&q=60" },
     { id: 2, nome: "Kit Maquiagem Completo Glow", categoria: "maquiagem", preco: 89.90, imagem: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&auto=format&fit=crop&q=60" },
@@ -54,6 +54,13 @@ function filtrarProdutos(categoria) {
     event.target.classList.remove('bg-white', 'text-slate-600');
     event.target.classList.add('bg-pink-600', 'text-white');
     
+    const tituloSecao = document.getElementById('titulo-secao');
+    if (categoria === 'todos') {
+        tituloSecao.innerText = 'Todos os Produtos';
+    } else {
+        tituloSecao.innerText = `Produtos: ${categoria.charAt(0).toUpperCase() + categoria.slice(1)}`;
+    }
+
     renderizarProdutos(categoria);
 }
 
@@ -72,6 +79,7 @@ function adicionarAoCarrinho(id) {
 function atualizarCarrinho() {
     const lista = document.getElementById('lista-carrinho');
     const contador = document.getElementById('contador-carrinho');
+    const badgeInferior = document.getElementById('badge-carrinho-inferior');
     const valorTotal = document.getElementById('valor-total');
     
     lista.innerHTML = '';
@@ -96,6 +104,14 @@ function atualizarCarrinho() {
     });
 
     contador.innerText = qtdTotal;
+    
+    if (qtdTotal > 0) {
+        badgeInferior.innerText = qtdTotal;
+        badgeInferior.classList.remove('hidden');
+    } else {
+        badgeInferior.classList.add('hidden');
+    }
+
     valorTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
@@ -108,6 +124,10 @@ function toggleCarrinho() {
     const modal = document.getElementById('modal-carrinho');
     modal.classList.toggle('hidden');
     modal.classList.toggle('flex');
+}
+
+function abrirPainelAdm() {
+    alert("Abrindo o Painel...");
 }
 
 function finalizarPedido() {
