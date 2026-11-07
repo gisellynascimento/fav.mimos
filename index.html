@@ -20,14 +20,9 @@
             </h1>
 
             <div class="flex items-center gap-2">
-                <!-- Botão Painel estilo modelo da moto -->
-                <button onclick="abrirPainelAdm()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center gap-1.5 shadow-sm transition">
-                    <i class="fa-solid fa-lock text-pink-500"></i> Painel
-                </button>
-
-                <!-- Botão Carrinho Superior -->
-                <button onclick="toggleCarrinho()" class="bg-pink-600 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow hover:bg-pink-700 transition">
-                    <i class="fa-solid fa-shopping-bag"></i> Carrinho <span id="contador-carrinho" class="bg-white text-pink-600 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                <!-- Botão Painel Rosa no Topo -->
+                <button onclick="abrirPainelAdm()" class="bg-pink-600 hover:bg-pink-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                    <i class="fa-solid fa-lock"></i> Painel
                 </button>
             </div>
         </div>
@@ -49,31 +44,31 @@
             <button onclick="filtrarProdutos('intimo')" class="filtro-btn bg-white text-slate-600 px-4 py-2 rounded-full text-sm font-medium shadow-sm hover:bg-pink-100 transition whitespace-nowrap">Íntimo & Facial</button>
         </div>
 
-        <!-- O item "Todas as Motos" trocado para "Todos os Produtos" -->
+        <!-- Todos os Produtos -->
         <div class="py-1">
             <h2 id="titulo-secao" class="text-base font-bold text-slate-800">Todos os Produtos</h2>
         </div>
 
-        <!-- Vitrine de Produtos (Mantidos todos os 11 mimos originais) -->
+        <!-- Vitrine de Produtos -->
         <div id="vitrine-produtos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             <!-- Injetado via JS -->
         </div>
 
     </main>
 
-    <!-- Barra Fixa Inferior (Exatamente igual ao rodapé do site de moto) -->
-    <div class="fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t border-slate-800 p-2 z-40 backdrop-blur-md">
+    <!-- Barra Fixa Inferior com itens em Rosa -->
+    <div class="fixed bottom-0 left-0 right-0 bg-slate-950/95 border-t border-slate-900 p-2 z-40 backdrop-blur-md">
         <div class="max-w-md mx-auto flex justify-around items-center">
-            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center text-slate-400 active:text-pink-500 py-1 px-4">
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center text-pink-500 py-1 px-4 transition">
                 <i class="fa-solid fa-gem text-lg"></i>
                 <span class="text-[10px] font-bold mt-1">Catálogo</span>
             </button>
-            <button onclick="toggleCarrinho()" class="flex flex-col items-center text-slate-400 active:text-pink-500 py-1 px-4 relative">
+            <button onclick="toggleCarrinho()" class="flex flex-col items-center text-pink-500 py-1 px-4 relative transition">
                 <i class="fa-solid fa-cart-shopping text-lg"></i>
                 <span class="text-[10px] font-bold mt-1">Carrinho</span>
-                <span id="badge-carrinho-inferior" class="absolute -top-1 right-2 bg-pink-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">0</span>
+                <span id="badge-carrinho-inferior" class="absolute -top-1 right-2 bg-pink-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-950 hidden">0</span>
             </button>
-            <button onclick="abrirPainelAdm()" class="flex flex-col items-center text-slate-400 active:text-pink-500 py-1 px-4">
+            <button onclick="abrirPainelAdm()" class="flex flex-col items-center text-pink-500 py-1 px-4 transition">
                 <i class="fa-solid fa-chart-pie text-lg"></i>
                 <span class="text-[10px] font-bold mt-1">Vendas</span>
             </button>
