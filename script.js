@@ -1,5 +1,6 @@
-// Catálogo atualizado com os produtos originais solicitados
-const produtos = [
+const SENHA_ADM = "2307";
+
+let produtos = JSON.parse(localStorage.getItem('produtos_fav_mimos')) || [
     { id: 1, nome: "Colônia Infantil Cheirinho de Amor", categoria: "infantil", preco: 35.90, imagem: "https://images.unsplash.com/photo-1515688594390-b649af70d282?w=400&auto=format&fit=crop&q=60" },
     { id: 2, nome: "Kit Maquiagem Completo Glow", categoria: "maquiagem", preco: 89.90, imagem: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&auto=format&fit=crop&q=60" },
     { id: 3, nome: "Necessaire de Higiene Pessoal", categoria: "higiene", preco: 29.90, imagem: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&auto=format&fit=crop&q=60" },
@@ -13,16 +14,28 @@ const produtos = [
     { id: 11, nome: "Água Micelar Limpeza Facial", categoria: "intimo", preco: 27.90, imagem: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&auto=format&fit=crop&q=60" }
 ];
 
-let carrinho = [];
+let carrinho = JSON.parse(localStorage.getItem('carrinho_fav_mimos')) || [];
+let historicoVendas = JSON.parse(localStorage.getItem('historico_vendas_mimos')) || [];
+let categoriaAtual = 'todos';
 
-function renderizarProdutos(filtro = 'todos') {
+document.addEventListener('DOMContentLoaded', () => {
+    renderizarProdutos();
+    atualizarCarrinho();
+});
+
+function renderizarProdutos(lista = produtos) {
     const vitrine = document.getElementById('vitrine-produtos');
     if (!vitrine) return;
     vitrine.innerHTML = '';
 
-    const produtosFiltrados = filtro === 'todos' 
-        ? produtos 
-        : produtos.filter(p => p.categoria === filtro);
+    const produtosFiltrados = lista === produtos ? (
+        categoriaAtual === 'todos' ? produtos : produtos.filter(p => p.categoria === categoriaAtual)
+    ) : lista;
+
+    if (produtosFiltrados.length === 0) {
+        vitrine.innerHTML = '<p class="col-span-full text-center text-slate-500 py-12 text-sm">Nenhum produto encontrado.</p>';
+        return;
+    }
 
     produtosFiltrados.forEach(produto => {
         vitrine.innerHTML += `
@@ -48,6 +61,7 @@ function renderizarProdutos(filtro = 'todos') {
 }
 
 function filtrarProdutos(categoria, elemento) {
+    categoriaAtual = categoria;
     document.querySelectorAll('.filtro-btn').forEach(btn => {
         btn.classList.remove('bg-pink-600', 'text-white');
         btn.classList.add('bg-white', 'text-slate-600');
@@ -58,7 +72,7 @@ function filtrarProdutos(categoria, elemento) {
         elemento.classList.add('bg-pink-600', 'text-white');
     }
     
-    renderizarProdutos(categoria);
+    renderizarProdutos();
 }
 
 function adicionarAoCarrinho(id) {
@@ -73,7 +87,17 @@ function adicionarAoCarrinho(id) {
     atualizarCarrinho();
 }
 
+function alterarQuantidade(id, delta) {
+    const item = carrinho.find(i => i.id === id);
+    if(item) {
+        item.quantidade += delta;
+        if(item.quantidade <= 0) carrinho = carrinho.filter(i => i.id !== id);
+    }
+    atualizarCarrinho();
+}
+
 function atualizarCarrinho() {
+    localStorage.setItem('carrinho_fav_mimos', JSON.stringify(carrinho));
     const lista = document.getElementById('lista-carrinho');
     const badgeInferior = document.getElementById('badge-carrinho-inferior');
     const valorTotal = document.getElementById('valor-total');
@@ -94,9 +118,16 @@ function atualizarCarrinho() {
                     <h4 class="font-semibold text-sm text-slate-800">${item.nome}</h4>
                     <span class="text-xs text-slate-500">R$ ${item.preco.toFixed(2).replace('.', ',')} x ${item.quantidade}</span>
                 </div>
-                <button onclick="removerDoCarrinho(${item.id})" class="text-red-400 hover:text-red-600 text-sm">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center bg-white border border-slate-200 rounded-lg">
+                        <button onclick="alterarQuantidade(${item.id}, -1)" class="px-2 py-0.5 text-slate-600 font-bold">-</button>
+                        <span class="px-2 text-slate-800 font-bold text-xs">${item.quantidade}</span>
+                        <button onclick="alterarQuantidade(${item.id}, 1)" class="px-2 py-0.5 text-slate-600 font-bold">+</button>
+                    </div>
+                    <button onclick="removerDoCarrinho(${item.id})" class="text-red-400 hover:text-red-600 text-sm">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </div>
         `;
     });
@@ -128,29 +159,215 @@ function toggleCarrinho() {
     }
 }
 
-function abrirPainelAdm() {
-    alert("Painel administrativo da Fav.mimos");
-}
-
 function finalizarPedido() {
     if (carrinho.length === 0) {
         alert("Seu carrinho está vazio!");
         return;
     }
 
-    let mensagem = "Olá! Gostaria de fazer o pedido dos seguintes mimos da *Fav.mimos*:%0A%0A";
-    let total = 0;
-
+    let totalVenda = 0, msgItens = "";
     carrinho.forEach(item => {
-        mensagem += `- ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2)})%0A`;
-        total += item.preco * item.quantidade;
+        totalVenda += item.preco * item.quantidade;
+        msgItens += `- ${item.quantidade}x ${item.nome} (R$ ${(item.preco * item.quantidade).toFixed(2)})\n`;
     });
 
-    mensagem += `%0A*Total: R$ ${total.toFixed(2).replace('.', ',')}*`;
+    // Registra no histórico automaticamente
+    historicoVendas.push({
+        data: new Date().toISOString(),
+        total: totalVenda
+    });
+    localStorage.setItem('historico_vendas_mimos', JSON.stringify(historicoVendas));
+
+    const mensagem = encodeURIComponent(`Olá! Gostaria de fazer o pedido dos seguintes mimos da *Fav.mimos*:\n\n${msgItens}\n*Total: R$ ${totalVenda.toFixed(2).replace('.', ',')}*`);
     
+    carrinho = [];
+    atualizarCarrinho();
+    toggleCarrinho();
+
     const seuNumeroWhatsApp = "5522999999999"; 
     window.open(`https://wa.me/${seuNumeroWhatsApp}?text=${mensagem}`, '_blank');
 }
 
-// Inicializa a vitrine assim que o script carrega
-renderizarProdutos();
+// Funções do Painel Administrativo
+function abrirPainelAdm() {
+    const modal = document.getElementById('modal-adm');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function fecharPainelAdm() {
+    const modal = document.getElementById('modal-adm');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+    document.getElementById('bloco-senha').classList.remove('hidden');
+    document.getElementById('bloco-conteudo-adm').classList.add('hidden');
+    document.getElementById('input-senha').value = '';
+    document.getElementById('erro-senha').classList.add('hidden');
+}
+
+function verificarSenha() {
+    if(document.getElementById('input-senha').value === SENHA_ADM) {
+        document.getElementById('bloco-senha').classList.add('hidden');
+        document.getElementById('bloco-conteudo-adm').classList.remove('hidden');
+        carregarRelatorios();
+        carregarCrudProdutos();
+    } else {
+        document.getElementById('erro-senha').classList.remove('hidden');
+    }
+}
+
+function mudarAbaAdm(aba) {
+    const btnRel = document.getElementById('tab-btn-relatorios');
+    const btnProd = document.getElementById('tab-btn-produtos');
+    const divRel = document.getElementById('aba-relatorios');
+    const divProd = document.getElementById('aba-produtos');
+
+    if(aba === 'relatorios') {
+        btnRel.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white transition";
+        btnProd.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+        divRel.classList.remove('hidden');
+        divProd.classList.add('hidden');
+        carregarRelatorios();
+    } else {
+        btnProd.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-slate-800 text-white transition";
+        btnRel.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition";
+        divProd.classList.remove('hidden');
+        divRel.classList.add('hidden');
+        carregarCrudProdutos();
+    }
+}
+
+function carregarRelatorios() {
+    const agora = new Date();
+    let hoje = 0, semana = 0, mes = 0;
+    const listaHist = document.getElementById('lista-historico-vendas');
+    listaHist.innerHTML = '';
+
+    [...historicoVendas].reverse().forEach(v => {
+        const d = new Date(v.data);
+        if(d.toDateString() === agora.toDateString()) hoje += v.total;
+        if((agora - d)/(1000*60*60*24) <= 7) semana += v.total;
+        if(d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear()) mes += v.total;
+
+        listaHist.innerHTML += `
+            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 flex justify-between text-[11px]">
+                <span class="text-slate-400">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</span>
+                <span class="text-emerald-400 font-bold">R$ ${v.total.toFixed(2)}</span>
+            </div>
+        `;
+    });
+
+    document.getElementById('relatorio-hoje').innerText = `R$ ${hoje.toFixed(2)}`;
+    document.getElementById('relatorio-semana').innerText = `R$ ${semana.toFixed(2)}`;
+    document.getElementById('relatorio-mes').innerText = `R$ ${mes.toFixed(2)}`;
+}
+
+function registrarVendaBalcao() {
+    const val = parseFloat(document.getElementById('venda-manual-valor').value);
+    if(!val || val <= 0) return alert("Digite um valor válido");
+
+    historicoVendas.push({
+        data: new Date().toISOString(),
+        total: val
+    });
+    localStorage.setItem('historico_vendas_mimos', JSON.stringify(historicoVendas));
+    document.getElementById('venda-manual-valor').value = '';
+    carregarRelatorios();
+    alert("Venda lançada com sucesso!");
+}
+
+function limparHistorico() {
+    if(confirm("Apagar histórico de vendas?")) {
+        historicoVendas = [];
+        localStorage.removeItem('historico_vendas_mimos');
+        carregarRelatorios();
+    }
+}
+
+function carregarCrudProdutos() {
+    const lista = document.getElementById('lista-crud-produtos');
+    lista.innerHTML = '';
+
+    produtos.forEach(p => {
+        lista.innerHTML += `
+            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 flex justify-between items-center text-xs">
+                <div>
+                    <span class="text-white font-bold block">${p.nome}</span>
+                    <span class="text-slate-400 text-[10px]">R$ ${p.preco.toFixed(2)} | ${p.categoria}</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="editarProduto(${p.id})" class="text-blue-400 hover:text-blue-300 px-2 py-1"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="excluirProduto(${p.id})" class="text-red-400 hover:text-red-300 px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function salvarProduto() {
+    const idEdicao = document.getElementById('prod-edit-id').value;
+    const nome = document.getElementById('prod-nome').value.trim();
+    const categoria = document.getElementById('prod-categoria').value.trim();
+    const preco = parseFloat(document.getElementById('prod-preco').value);
+    const imagem = document.getElementById('prod-imagem').value.trim();
+
+    if(!nome || isNaN(preco)) return alert("Preencha os campos obrigatórios!");
+
+    if(idEdicao) {
+        const p = produtos.find(item => item.id == idEdicao);
+        if(p) {
+            p.nome = nome;
+            p.categoria = categoria || 'geral';
+            p.preco = preco;
+            if(imagem) p.imagem = imagem;
+        }
+    } else {
+        const novoId = produtos.length > 0 ? Math.max(...produtos.map(p => p.id)) + 1 : 1;
+        produtos.push({
+            id: novoId,
+            nome,
+            categoria: categoria || 'geral',
+            preco,
+            imagem: imagem || "https://images.unsplash.com/photo-1515688594390-b649af70d282?w=400&auto=format&fit=crop&q=60"
+        });
+    }
+
+    localStorage.setItem('produtos_fav_mimos', JSON.stringify(produtos));
+    limparFormProduto();
+    carregarCrudProdutos();
+    renderizarProdutos();
+    alert("Produto salvo com sucesso!");
+}
+
+function editarProduto(id) {
+    const p = produtos.find(item => item.id === id);
+    if(!p) return;
+
+    document.getElementById('prod-edit-id').value = p.id;
+    document.getElementById('prod-nome').value = p.nome;
+    document.getElementById('prod-categoria').value = p.categoria;
+    document.getElementById('prod-preco').value = p.preco;
+    document.getElementById('prod-imagem').value = p.imagem || '';
+
+    document.getElementById('titulo-form-produto').innerText = "Editar Produto";
+    document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
+}
+
+function limparFormProduto() {
+    document.getElementById('prod-edit-id').value = '';
+    document.getElementById('prod-nome').value = '';
+    document.getElementById('prod-categoria').value = '';
+    document.getElementById('prod-preco').value = '';
+    document.getElementById('prod-imagem').value = '';
+    document.getElementById('titulo-form-produto').innerText = "Adicionar Novo Produto";
+    document.getElementById('btn-cancelar-edicao').classList.add('hidden');
+}
+
+function excluirProduto(id) {
+    if(confirm("Deseja realmente excluir este produto?")) {
+        produtos = produtos.filter(p => p.id !== id);
+        localStorage.setItem('produtos_fav_mimos', JSON.stringify(produtos));
+        carregarCrudProdutos();
+        renderizarProdutos();
+    }
+}
